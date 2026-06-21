@@ -22,9 +22,11 @@ The solution is architected as a hierarchical multi-agent graph containing:
 graph TD
     User([Student/User Prompt]) --> API[FastAPI App Gateway /chat]
     API -->|Input Validation & Security Filter| Extractor[AcademicTaskExtractor Agent - Root]
-    Extractor -->|Tool Use| EmailTool[extract_email_deadlines]
-    Extractor -->|Task Delegation| Scheduler[SchedulerCoordinator Agent - Sub-agent]
-    Scheduler -->|Tool Use| CalendarTool[book_calendar_focus_block]
+    
+    Extractor -->|Intent: Extract Deadline| EmailTool[extract_email_deadlines tool]
+    Extractor -->|Intent: Book Schedule| Scheduler[SchedulerCoordinator Agent - Sub-agent]
+    
+    Scheduler -->|Tool Use| CalendarTool[book_calendar_focus_block tool]
 ```
 
 ### 1. Root Agent: `AcademicTaskExtractor`
@@ -53,8 +55,8 @@ graph TD
    ```
 2. Initialize and configure local mock credentials (to bypass real GCP endpoints if executing locally without credentials):
    ```bash
-   # Set environment flags
-   $env:GOOGLE_APPLICATION_CREDENTIALS="D:\student-life-concierge\mock_credentials.json"
+   # Set environment flags (point to the mock_credentials.json file)
+   $env:GOOGLE_APPLICATION_CREDENTIALS="mock_credentials.json"
    $env:GEMINI_API_KEY="your_api_key"
    ```
 
@@ -63,9 +65,14 @@ graph TD
    uv run pytest
    ```
 
-4. Launch the local sandbox playground:
+4. Launch the local FastAPI API Server (Backend):
    ```bash
-   agents-cli playground
+   uv run uvicorn app.fast_api_app:app --host 127.0.0.1 --port 8000
+   ```
+
+5. Launch the ADK Web UI Playground (Frontend):
+   ```bash
+   uv run adk web app --host 127.0.0.1 --port 8080
    ```
 
 ---
