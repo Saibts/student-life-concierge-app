@@ -102,7 +102,7 @@ AcademicTaskExtractor.sub_agents = [SchedulerCoordinator]
 
 # Define the central ADK App package
 app = App(
-    name="student-concierge-app",
+    name="app",
     root_agent=AcademicTaskExtractor,
 )
 
