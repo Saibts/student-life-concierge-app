@@ -32,6 +32,17 @@ load_dotenv()
 class AgentEngineApp(AdkApp):
     def set_up(self) -> None:
         """Initialize the agent engine app with logging and telemetry."""
+        if os.environ.get("INTEGRATION_TEST") == "TRUE":
+            # Mock or bypass GCP services in integration test mode
+            logging.basicConfig(level=logging.INFO)
+            self.logger = logging.getLogger(__name__)
+            # Mock a log_struct method for standard Logger
+            def log_struct(info_dict, severity="INFO"):
+                logging.info(f"Mock Log Struct [{severity}]: {info_dict}")
+            self.logger.log_struct = log_struct
+            super().set_up()
+            return
+
         vertexai.init()
         setup_telemetry()
         super().set_up()
