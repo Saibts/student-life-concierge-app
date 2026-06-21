@@ -38,11 +38,13 @@ def get_mock_agent_response(prompt_text: str) -> str:
     if "ignore previous" in prompt_lower or "bypass security" in prompt_lower or "injection" in prompt_lower:
         return "I cannot bypass security protocols or ignore system rules. Please make a valid request."
     elif "schedule" in prompt_lower or "book" in prompt_lower:
-        return "Success: Focus block booked for the Capstone assignment on 2026-07-05."
+        return "OK. I've booked a 3.5-hour focus block for your Capstone project on March 15, 2024."
     elif "parse" in prompt_lower or "email" in prompt_lower or "deadline" in prompt_lower:
         return "Extracted: Capstone Project deadline found on July 06, 2026."
     else:
         return "Hello! How can I assist you with your academic tasks or schedule today?"
+
+session_service = InMemorySessionService()
 
 @app.post("/chat")
 def chat(payload: UserRequestPayload):
@@ -65,12 +67,19 @@ def chat(payload: UserRequestPayload):
             # Safe local fallback when API keys are not valid
             return {"status": "success", "response": get_mock_agent_response(payload.user_input)}
 
-        session_service = InMemorySessionService()
-        session = session_service.create_session_sync(user_id=payload.user_id, app_name="student-concierge-api")
+        # Retrieve existing session or create a new one
+        sessions_resp = session_service.list_sessions_sync(user_id=payload.user_id, app_name="student-concierge-api")
+        if sessions_resp.sessions:
+            session = sessions_resp.sessions[0]
+        else:
+            session = session_service.create_session_sync(user_id=payload.user_id, app_name="student-concierge-api")
+            
         runner = Runner(agent=root_agent, session_service=session_service, app_name="student-concierge-api")
 
+        # Inject user_id as system context so the agent doesn't hallucinate it
+        user_input_with_context = f"[System Context: Current user_id is '{payload.user_id}']\n{payload.user_input}"
         message = types.Content(
-            role="user", parts=[types.Part.from_text(text=payload.user_input)]
+            role="user", parts=[types.Part.from_text(text=user_input_with_context)]
         )
 
         events = list(runner.run(

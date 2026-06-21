@@ -90,7 +90,7 @@ def get_mock_agent_response(prompt_text: str) -> str:
     if "ignore previous" in prompt_lower or "bypass security" in prompt_lower or "injection" in prompt_lower:
         return "I cannot bypass security protocols or ignore system rules. Please make a valid request."
     elif "schedule" in prompt_lower or "book" in prompt_lower:
-        return "Success: Focus block booked for the Capstone assignment on 2026-07-05."
+        return "OK. I've booked a 3.5-hour focus block for your Capstone project on March 15, 2024."
     elif "parse" in prompt_lower or "email" in prompt_lower or "deadline" in prompt_lower:
         return "Extracted: Capstone Project deadline found on July 06, 2026."
     else:

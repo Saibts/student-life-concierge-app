@@ -69,6 +69,8 @@ def book_calendar_focus_block(event: CalendarEventSchema) -> str:
     return f"Success: Focus block booked for the {title} on {date} (Duration: {duration}h) for user {u_id}."
 
 
+LlmAgent.set_default_model('gemini-2.5-flash')
+
 # Define AcademicTaskExtractor - specializes in context collection, parsing, and intent classification
 AcademicTaskExtractor = LlmAgent(
     name="AcademicTaskExtractor",
